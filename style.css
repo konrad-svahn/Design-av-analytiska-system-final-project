@@ -1,0 +1,24 @@
+#svg1{
+    background-color: #000000;
+	display: block;
+}
+
+.countries{
+    fill: #000000;
+    stroke-width: 1;
+}
+
+.tooltip{
+    opacity: 1;
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+    width: 120px;
+    height: 30px;
+    color: #ffffff;
+    background-color: #000000;
+    border-radius: 9px;
+    padding: 4px;
+    line-height: 2;
+    display: inline;
+}
