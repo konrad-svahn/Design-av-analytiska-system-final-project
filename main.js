@@ -1,7 +1,9 @@
-width = 1500;
+width = 1600;
 height = 800;
 marginVert = 20;
 marginHor = 80;
+
+var time = d3.timeParse("%d-%m-%Y"); 
 
 var svg = d3.select("#svg1")
     .append("svg")
@@ -15,7 +17,7 @@ var svg = d3.select("#svg1")
 var tooltip = d3.select("#tooltip"); 
 
 // create the projecktion 
-const projection = d3.geoNaturalEarth1().scale(220).translate([(width/2)-150, (height/2)]);
+const projection = d3.geoNaturalEarth1().scale(220).translate([(width/2)-210, (height/2)]);
 
 // create geo path
 const geoPath = d3.geoPath().projection(projection);
@@ -34,7 +36,8 @@ Promise.all([
         return {
             country: data.country_txt,
             coord: [+data.longitude, +data.latitude],
-            date: data.iday + "/" + data.imonth + "/" + data.iyear, 
+            date: time(data.iday + "-" + data.imonth + "-" + data.iyear), 
+            date_string: data.iday + "/" + data.imonth + "/" + data.iyear,
             year: +data.iyear,
             type: data.attacktype1_txt,
             type_num: data.attacktype1,
@@ -48,7 +51,8 @@ Promise.all([
 
     console.log(dataset);
     draw();
-    drawAttacks(1970)
+    drawAttacks(1970);
+    drawTimeline(1970);
 });
 
 function draw() {  
@@ -123,7 +127,7 @@ d3.select("#main_group")
                 tooltip.html(
                     "<b id='text1' style='font-size:11px'>Type: " + this.__data__.type + 
                     "</b><br><b  id='text2' style='font-size:11px'>Target: "+this.__data__.target+
-                    "</b><br><b  id='text3' style='font-size:11px'>Date: "+this.__data__.date+"</b>"
+                    "</b><br><b  id='text3' style='font-size:11px'>Date: "+this.__data__.date_string+"</b>"
                 );
             })
     })
@@ -175,5 +179,44 @@ for(var i = 1970; i <= 2020; i++){
 
     distx += 40;
 } 
+function drawTimeline(curent_year){
+    d3.select("#svg1").select("svg")
+        .append("rect")
+        .attr("x", width - 300)
+        .attr("width",250)
+        .attr("height",height)
+        .style("fill", "#0f0f0f")//*/
 
+    var yScale = d3.scaleTime()
+        .domain([time("01-01-"+curent_year), time("31-12-"+curent_year)])
+        .range([50, height-50])
 
+    var timeLine = d3.axisLeft(yScale)
+        .ticks(12)
+        .tickSizeInner(0)
+        .tickSizeOuter(0)
+        .tickPadding(5);
+
+    d3.select("#svg1").select("svg")
+        .append("g")
+        .classed("axis",true)
+        .attr("transform", "translate("+(width - 175)+" , 0)")
+        .call(timeLine);
+
+    d3.selectAll("g.axis .domain, g.axe g.tick line")
+        .style("stroke", "#00ff00");
+
+    d3.selectAll("g.axis g.tick text")
+        .style("font-size", "8px")
+        .style("color", "#00ff00");
+
+    svg.selectAll("events")
+        .data(dataset)
+        .enter()
+        .append("circle")
+        .classed("time_circles", true)
+        .attr("cx", d => {timeScale(d.date)})
+        //.attr("cy", d =>  570 + (d.random * 80))
+        .attr("r", 3)
+        .style("fill", "#00ff00");
+}
