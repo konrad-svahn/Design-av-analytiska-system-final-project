@@ -39,6 +39,7 @@ Promise.all([
             date: data.iyear + "/" + data.imonth + "/" + data.iday, 
             year: +data.iyear,
             type: data.attacktype1_txt,
+            type_num: data.attacktype1,
             target: data.targtype1_txt
         }
     })
@@ -73,7 +74,7 @@ function drawAttacks(year) {
         .attr("class", "attacks")
         .attr("cx", d => projection(d.coord)[0])
         .attr("cy", d => projection(d.coord)[1])
-        .attr("r", 2.5)
+        .attr("r", 3)
         .attr("stroke-width",0.9)
         .style("stroke", "#00ff00");//*/
 }
@@ -100,7 +101,7 @@ d3.select("#main_group")
             .on("mousemove", function() {    
                 
                 // this bit here writes the name of the country the mouse is currently on in the tool tip
-                tooltip.html("<b> " + this.__data__.properties.name+ "</b>")
+                tooltip.html("<b> " + this.__data__.properties.name + "</b>")
             
                 // changes the color of the country the mouse is currently on
                 d3.select(this)
@@ -113,7 +114,12 @@ d3.select("#main_group")
                     .style("fill", "#000000")
                     .style("fill-opacity", 1)
                     .style("stroke", "#ff00ff");
-            }); 
+            });
+            
+        d3.select(this).selectAll("circle.attacks")
+            .on("mousemove", function() {    
+                tooltip.html("<b> " + this.__data__.type + "</b>")
+            })
     })
     // removes the tooltip if the mouse isn't over any country 
     .on("mouseleave", function() { 
