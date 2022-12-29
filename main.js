@@ -12,9 +12,7 @@ var svg = d3.select("#svg1")
 	.attr("transform", "translate(" + marginHor + "," + marginVert + ")");
     
 // create the tooltip variable
-var tooltip = d3.select("#tooltip") 
-
-var control = d3.select("#control")
+var tooltip = d3.select("#tooltip"); 
 
 // create the projecktion 
 const projection = d3.geoNaturalEarth1().scale(220).translate([(width/2)-150, (height/2)]);
@@ -36,7 +34,7 @@ Promise.all([
         return {
             country: data.country_txt,
             coord: [+data.longitude, +data.latitude],
-            date: data.iyear + "/" + data.imonth + "/" + data.iday, 
+            date: data.iday + "/" + data.imonth + "/" + data.iyear, 
             year: +data.iyear,
             type: data.attacktype1_txt,
             type_num: data.attacktype1,
@@ -76,7 +74,7 @@ function drawAttacks(year) {
         .attr("cy", d => projection(d.coord)[1])
         .attr("r", 3)
         .attr("stroke-width",0.9)
-        .style("stroke", "#00ff00");//*/
+        .style("stroke", "#00ff00");
 }
 
 // this is the controls for the tool tip and it requires some additional explanation
@@ -87,8 +85,7 @@ d3.select("#main_group")
     .on("mousemove", function() {
 
         //I change the position of the tooltip when the mouse moves
-        tooltip
-            .style("left", (d3.event.pageX - 30) + "px")		
+        tooltip		
             .style("top", (d3.event.pageY - 50) + "px")
             .style("opacity", 1);
 
@@ -98,10 +95,12 @@ d3.select("#main_group")
             // I then execute another function when the mouse moves over the individual country
             // the reason I do it in two layers like this is because I only want the tooltip to disappear when the mouse isn't over any country
             // so I have one layer that detects if the mouse is over any of the countries and on that detects if it is over an individual country
-            .on("mousemove", function() {    
+            .on("mousemove", function() {   
+                
+                tooltip.style("left", (d3.event.pageX - 50) + "px")
                 
                 // this bit here writes the name of the country the mouse is currently on in the tool tip
-                tooltip.html("<b> " + this.__data__.properties.name + "</b>")
+                tooltip.html("<b> " + this.__data__.properties.name + "</b>");
             
                 // changes the color of the country the mouse is currently on
                 d3.select(this)
@@ -117,25 +116,28 @@ d3.select("#main_group")
             });
             
         d3.select(this).selectAll("circle.attacks")
-            .on("mousemove", function() {    
-                tooltip.html("<b> " + this.__data__.type + "</b>")
+            .on("mousemove", function() { 
+                
+                tooltip.style("left", (d3.event.pageX + 5) + "px")
+                
+                tooltip.html(
+                    "<b id='text1' style='font-size:11px'>Type: " + this.__data__.type + 
+                    "</b><br><b  id='text2' style='font-size:11px'>Target: "+this.__data__.target+
+                    "</b><br><b  id='text3' style='font-size:11px'>Date: "+this.__data__.date+"</b>"
+                );
             })
     })
     // removes the tooltip if the mouse isn't over any country 
     .on("mouseleave", function() { 
-        tooltip
-            .transition()	
-            .delay(1000)	
-            .duration(500)		
-            .style("opacity", 0);
+        tooltip.style("opacity", 0);
     });
 
 // create the buttons
 button = d3.select("#svg1").select("svg").append("g")
     .attr("id","buttons")
-	.attr("transform", "translate(" + (140) + "," + (height - 30) + ")")
+	.attr("transform", "translate(" + (140) + "," + (height - 30) + ")");
 
-    button.append("text")
+button.append("text")
     .classed("txt", true)
     .attr("x", 0)
     .attr("y", 8)
@@ -147,7 +149,7 @@ for(var i = 1970; i <= 2020; i++){
         var distx = 40;
         var disty = 0; 
     } else if (i == 1996) {
-        d3.select(".button").style("fill","#ffffff")
+        d3.select(".button").style("fill","#ffffff");
         var distx = 40;
         var disty = 18; 
     }
@@ -171,7 +173,7 @@ for(var i = 1970; i <= 2020; i++){
             drawAttacks(this.id);
         });
 
-    distx += 40
+    distx += 40;
 } 
 
 

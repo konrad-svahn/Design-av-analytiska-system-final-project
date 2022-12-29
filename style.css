@@ -25,10 +25,10 @@
     pointer-events: none;
     position: absolute;
     text-align: center;
-    width: 160px;
+    width: 200px;
     height: 30px;
     color: #ffffff;
-    background-color: #000000;
+    background-color: none;
     border-radius: 9px;
     padding: 4px;
     line-height: 2;
