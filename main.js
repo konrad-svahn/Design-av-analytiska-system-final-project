@@ -116,7 +116,7 @@ function drawTimeline(curent_year){
         .append("circle")
         .attr("class", "time_circles")
         .attr("cx", d => d.type_num * 8 + width - 260)
-        .attr("cy", d => yScale(d.date) + 10)
+        .attr("cy", d => yScale(d.date) - 12)
         .attr("r", 3)
         .style("stroke",  d => colorScale(d.type_num));
 }
