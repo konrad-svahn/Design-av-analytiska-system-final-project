@@ -5,6 +5,8 @@ marginHor = 80;
 
 var time = d3.timeParse("%d-%m-%Y"); 
 
+var colorScale = d3.scaleLinear().domain([1,10]).range(["#00ffff", "#00ff00"])
+
 var svg = d3.select("#svg1")
     .append("svg")
 	.attr("width", width)
@@ -34,13 +36,12 @@ Promise.all([
     // the datapoints
     d3.csv("./terrorism.csv", function(data){
         return {
-            country: data.country_txt,
             coord: [+data.longitude, +data.latitude],
             date: time(data.iday + "-" + data.imonth + "-" + data.iyear), 
             date_string: data.iday + "/" + data.imonth + "/" + data.iyear,
             year: +data.iyear,
             type: data.attacktype1_txt,
-            type_num: data.attacktype1,
+            type_num: +data.attacktype1,
             target: data.targtype1_txt
         }
     })
@@ -78,7 +79,46 @@ function drawAttacks(year) {
         .attr("cy", d => projection(d.coord)[1])
         .attr("r", 3)
         .attr("stroke-width",0.9)
-        .style("stroke", "#00ff00");
+        .style("stroke", d => colorScale(d.type_num));
+}
+
+function drawTimeline(curent_year){
+
+    d3.select(".axis").remove()
+    d3.selectAll(".time_circles").remove()
+
+    var yScale = d3.scaleTime()
+        .domain([time("01-01-"+curent_year), time("31-12-"+curent_year)])
+        .range([50, height-50])
+
+    var timeLine = d3.axisLeft(yScale)
+        .ticks(12)
+        .tickSizeInner(0)
+        .tickSizeOuter(0)
+        .tickPadding(5);
+
+    d3.select("#svg1").select("svg")
+        .append("g")
+        .classed("axis",true)
+        .attr("transform", "translate("+(width - 240)+" , 0)")
+        .call(timeLine);
+
+    d3.selectAll("g.axis .domain, g.axe g.tick line")
+        .style("stroke", "#ff00ff");
+
+    d3.selectAll("g.axis g.tick text")
+        .style("font-size", "9px")
+        .style("color", "#ff00ff");
+
+    svg.selectAll("events")
+        .data(dataset.filter(function(d) { return (d.year == curent_year) }))
+        .enter()
+        .append("circle")
+        .attr("class", "time_circles")
+        .attr("cx", d => d.type_num * 8 + width - 260)
+        .attr("cy", d => yScale(d.date) + 10)
+        .attr("r", 3)
+        .style("stroke",  d => colorScale(d.type_num));
 }
 
 // this is the controls for the tool tip and it requires some additional explanation
@@ -175,48 +215,8 @@ for(var i = 1970; i <= 2020; i++){
             d3.select(this).style("fill","#ffffff");
             d3.selectAll(".attacks").remove();
             drawAttacks(this.id);
+            drawTimeline(this.id);
         });
 
     distx += 40;
 } 
-function drawTimeline(curent_year){
-    d3.select("#svg1").select("svg")
-        .append("rect")
-        .attr("x", width - 300)
-        .attr("width",250)
-        .attr("height",height)
-        .style("fill", "#0f0f0f")//*/
-
-    var yScale = d3.scaleTime()
-        .domain([time("01-01-"+curent_year), time("31-12-"+curent_year)])
-        .range([50, height-50])
-
-    var timeLine = d3.axisLeft(yScale)
-        .ticks(12)
-        .tickSizeInner(0)
-        .tickSizeOuter(0)
-        .tickPadding(5);
-
-    d3.select("#svg1").select("svg")
-        .append("g")
-        .classed("axis",true)
-        .attr("transform", "translate("+(width - 175)+" , 0)")
-        .call(timeLine);
-
-    d3.selectAll("g.axis .domain, g.axe g.tick line")
-        .style("stroke", "#00ff00");
-
-    d3.selectAll("g.axis g.tick text")
-        .style("font-size", "8px")
-        .style("color", "#00ff00");
-
-    svg.selectAll("events")
-        .data(dataset)
-        .enter()
-        .append("circle")
-        .classed("time_circles", true)
-        .attr("cx", d => {timeScale(d.date)})
-        //.attr("cy", d =>  570 + (d.random * 80))
-        .attr("r", 3)
-        .style("fill", "#00ff00");
-}
